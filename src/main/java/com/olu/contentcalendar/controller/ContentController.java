@@ -1,7 +1,9 @@
 package com.olu.contentcalendar.controller;
 
 import com.olu.contentcalendar.model.Content;
+import com.olu.contentcalendar.model.Status;
 import com.olu.contentcalendar.repository.ContentCollectionRepository;
+import com.olu.contentcalendar.repository.ContentRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,9 +18,9 @@ import java.util.Optional;
 @CrossOrigin
 public class ContentController {
 
-    private final ContentCollectionRepository repository;
+    private final ContentRepository repository;
 
-    public ContentController(ContentCollectionRepository repo) {
+    public ContentController(ContentRepository repo) {
         this.repository = repo;
     }
 
@@ -41,7 +43,7 @@ public class ContentController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
-    public void update(@PathVariable Integer id,@Valid @RequestBody Content content) {
+    public void update(@PathVariable Integer id, @Valid @RequestBody Content content) {
         if (repository.findById(id).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Content not found");
         }
@@ -50,7 +52,17 @@ public class ContentController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id){
+    public void delete(@PathVariable Integer id) {
         repository.deleteById(id);
+    }
+
+    @GetMapping("/filter/{keyword}")
+    public List<Content> findByTitle(@PathVariable String keyword) {
+        return repository.findAllByTitleContains(keyword);
+    }
+
+    @GetMapping("filter/status/{status}")
+    public List<Content> findByStatus(@PathVariable Status status) {
+        return repository.listByStatus(status);
     }
 }
